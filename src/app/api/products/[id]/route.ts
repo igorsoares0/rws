@@ -3,10 +3,10 @@ import { productService } from '@/lib/db'
 
 export async function GET(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = context.params.id
+    const { id } = await params
     const product = await productService.getProductById(id)
 
     if (!product) {
@@ -34,10 +34,10 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = context.params.id
+    const { id } = await params
     const body = await request.json()
     const { name, description, price, imageUrl, sku, active } = body
 
@@ -62,10 +62,10 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = context.params.id
+    const { id } = await params
     await productService.deleteProduct(id)
     return NextResponse.json({ message: 'Product deleted successfully' })
   } catch (error) {
