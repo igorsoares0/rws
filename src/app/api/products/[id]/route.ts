@@ -1,4 +1,4 @@
-import { NextResponse, Request } from 'next/server'
+import { NextResponse } from 'next/server'
 import { productService } from '@/lib/db'
 
 export async function GET(
