@@ -1,12 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse, Request } from 'next/server'
 import { productService } from '@/lib/db'
 
 export async function GET(
-  request: NextRequest,
-  context: { params: { id: string } }
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params
+    const { id } = params
     const product = await productService.getProductById(id)
 
     if (!product) {
@@ -33,11 +33,11 @@ export async function GET(
 }
 
 export async function PUT(
-  request: NextRequest,
-  context: { params: { id: string } }
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params
+    const { id } = params
     const body = await request.json()
     const { name, description, price, imageUrl, sku, active } = body
 
@@ -61,11 +61,11 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  context: { params: { id: string } }
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params
+    const { id } = params
     await productService.deleteProduct(id)
     return NextResponse.json({ message: 'Product deleted successfully' })
   } catch (error) {
