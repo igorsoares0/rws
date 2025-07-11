@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 // URL do Minimal Reviews - configurável via variável de ambiente
-const MINIMAL_REVIEWS_URL = process.env.MINIMAL_REVIEWS_URL || 'https://minimal-reviews.com'
+const MINIMAL_REVIEWS_URL = process.env.MINIMAL_REVIEWS_URL || 'https://minimalreviews.vercel.app'
 
 export async function POST(request: NextRequest) {
   try {
