@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['res.cloudinary.com', 'seu-bucket.s3.amazonaws.com'],
+    domains: ['res.cloudinary.com'],
   },
   serverExternalPackages: ['@prisma/client', 'prisma']
 };

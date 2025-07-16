@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
 import { v4 as uuidv4 } from 'uuid'
+import cloudinary from '@/lib/cloudinary'
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,14 +15,6 @@ export async function POST(request: NextRequest) {
     }
 
     const uploadedFiles = []
-
-    // Criar diretório de uploads se não existir
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', 'reviews')
-    try {
-      await mkdir(uploadsDir, { recursive: true })
-    } catch (error) {
-      // Diretório já existe
-    }
 
     for (const file of files) {
       // Validações
@@ -58,23 +49,33 @@ export async function POST(request: NextRequest) {
       // Gerar nome único para o arquivo
       const fileExtension = file.name.split('.').pop()
       const uniqueFilename = `${uuidv4()}.${fileExtension}`
-      const filePath = join(uploadsDir, uniqueFilename)
 
-      // Salvar arquivo
+      // Upload para Cloudinary
       const bytes = await file.arrayBuffer()
       const buffer = Buffer.from(bytes)
-      await writeFile(filePath, buffer)
 
-      // Determinar tipo de mídia
-      const mediaType = file.type.startsWith('image/') ? 'IMAGE' : 'VIDEO'
+      // Determinar tipo de mídia e configurar upload
+      const isImage = file.type.startsWith('image/')
+      const mediaType = isImage ? 'IMAGE' : 'VIDEO'
+      
+      const uploadResult = await cloudinary.uploader.upload(
+        `data:${file.type};base64,${buffer.toString('base64')}`,
+        {
+          resource_type: isImage ? 'image' : 'video',
+          folder: 'reviews',
+          public_id: uniqueFilename.split('.')[0],
+          overwrite: true,
+        }
+      )
 
       uploadedFiles.push({
         filename: uniqueFilename,
         originalName: file.name,
-        url: `/uploads/reviews/${uniqueFilename}`,
+        url: uploadResult.secure_url,
         type: mediaType,
         size: file.size,
         mimeType: file.type,
+        cloudinaryId: uploadResult.public_id,
       })
     }
 
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error uploading files:', error)
     return NextResponse.json(
-      { error: 'Failed to upload files' },
+      { error: 'Failed to upload files', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
